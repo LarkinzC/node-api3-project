@@ -35,24 +35,34 @@ router.post('/', validateUser, (req, res, next) => {
 });
 
 router.put('/:id', validateUserId, validateUser, (req, res, next) => {
-  User.update({ id: req.params.id, name: req.body.name })
+  User.update( req.params.id, { name: req.name } )
   .then(updatedUser => {
     res.status(201).json(updatedUser)
   })
   .catch(next)
-  console.log(req.name)
 });
 
-router.delete('/:id', validateUserId, (req, res) => {
+router.delete('/:id', validateUserId, (req, res, next) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
+  User.remove(req.params.id)
+  .then(removedUser => {
+    res.status(201).json(req.user)
+  })
+  .catch(next)
   console.log(req.user)
 });
 
-router.get('/:id/posts', validateUserId, (req, res) => {
+router.get('/:id/posts', validateUserId, async (req, res, next) => {
   // RETURN THE ARRAY OF USER POSTS
   // this needs a middleware to verify user id
-});
+  try {
+    const result = await User.getUserPosts(req.params.id)
+    res.json(result)
+  } catch(err) {
+    next(err)
+  }
+})
 
 router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
   // RETURN THE NEWLY CREATED USER POST
